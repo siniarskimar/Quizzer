@@ -6,9 +6,9 @@ add_executable(quiz "main.cpp")
 
 set_target_properties(quiz
 	PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
-set_property(TARGET quiz PROPERTY CXX_STANDARD_REQUIRED 17)
+set_property(TARGET quiz PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(quiz "stdc++fs")
 
