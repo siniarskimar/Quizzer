@@ -14,31 +14,48 @@ struct Question {
 
 struct Quiz {
 	std::string name;
+	std::string author;
+	std::string desc;
 	std::vector<Question> questions;
 };
 
 void load(std::vector<Quiz>&);
 void play(Quiz&);
+void printAvailable(const std::vector<Quiz>&);
+void printHelp();
+void printInfo(const Quiz&);
+std::vector<std::string> strSplit(const std::string&, char);
 ///////////////////////
 
 int main() {
 	std::vector<Quiz> quizzes;
 
 	load(quizzes);
-	
+	printAvailable(quizzes);
 	do {
-		int choise;
-		std::cout << "Available quizzes: "<< std::endl;
-		for(int i = 0; i < quizzes.size(); i++){
-			std::cout << i+1 << ". " << quizzes[i].name << std::endl;
-		}
-		std::cout << "\nInput number 0 or lower to exit" <<std::endl;
+		std::string choice_buff;
 
-		std::cout << "> "; std::cin >> choise;
-		if(choise <= 0)
+		std::cout << "> "; std::getline(std::cin,choice_buff);
+		std::cin.clear();
+
+		std::vector<std::string> choice = strSplit(choice_buff, ' ');
+
+		// No switch for strings :(
+		if(choice[0] == "q" || choice[0] == "quit")
 			break;
+		else if((choice[0] == "i" || choice[0] == "info")
+				&& !(std::stoi(choice[1]) > quizzes.size()) && !(std::stoi(choice[1]) <= 0)) {
+			
+			printInfo(quizzes[std::stoi(choice[1]) - 1]);
+		} else if((choice[0] == "p" || choice[0] == "play")
+				&& !(std::stoi(choice[1]) > quizzes.size()) && !(std::stoi(choice[1]) <= 0)){
 
-		play(quizzes[choise-1]);
+			play(quizzes[std::stoi(choice[1]) - 1]);
+		} else if(choice[0] == "h" || choice[0] == "help"){
+			printHelp();
+		} else if(choice[0] == "l" || choice[0] == "list"){
+			printAvailable(quizzes);
+		}
 
 	} while(true);
 	
@@ -48,15 +65,15 @@ int main() {
 void play(Quiz& quiz){
 	int score = 0;
 	for(Question& question : quiz.questions){
-		int choise = 0;
+		int choice = 0;
 		std::cout << '\n' << question.question << std::endl;
 		for(int i = 0; i < question.answers.size(); i++){
 			std::cout << i + 1 << ". " << question.answers[i] << std::endl;
 		}
-		std::cout << "> "; std::cin >> choise;
-		choise -= 1;
+		std::cout << "> "; std::cin >> choice;
+		choice -= 1;
 
-		if(choise == question.answer){
+		if(choice == question.answer){
 			std::cout << "Correct!" <<std::endl;
 			score += 1;
 		} else {
@@ -85,6 +102,9 @@ void load(std::vector<Quiz>& quizzes){
 
 			Quiz quiz;
 			quiz.name = js["name"];
+			quiz.author = (!js["author"].is_null()) ? js["author"] : "Unknown";
+			quiz.desc = (!js["description"].is_null()) ? js["description"] : "";
+
 			for(auto& question_js : js["questions"]){
 				Question question;
 				question.question = question_js["question"];
@@ -102,4 +122,41 @@ void load(std::vector<Quiz>& quizzes){
 			quizzes.push_back(quiz);
 		}
 	}
+}
+
+void printAvailable(const std::vector<Quiz>& quizzes){
+	std::cout << "Available quizzes: "<< std::endl;
+	for(int i = 0; i < quizzes.size(); i++){
+		std::cout << i+1 << ". " << quizzes[i].name << std::endl;
+	}
+}
+void printInfo(const Quiz& quiz){
+	std::cout << "Name: "<< quiz.name << '\n'
+		<< "Author: "<< quiz.author << '\n'
+		<< "Description: " << quiz.desc <<std::endl;
+}
+void printHelp(){
+	std::cout << "[l]ist - list available quizzes\n"
+			<< "[h]elp - print this message\n"
+			<< "[p]lay <num> - play a quiz\n"
+			<< "[i]nfo <num> - show info about a quiz\n"
+			<< "[q]uit - quits the program" << std::endl;
+}
+
+std::vector<std::string> strSplit(const std::string& str, char delim){
+	std::vector<std::string> tokens;
+	std::string buff = "";
+
+	for(int i = 0; i < str.length(); i++){
+		const char& ch = str[i];
+		if(!(ch == delim)){
+			buff += ch;
+		} else {
+			tokens.push_back(buff);
+			buff = "";
+		}
+	}
+	tokens.push_back(buff);
+
+	return tokens;
 }

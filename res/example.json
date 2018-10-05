@@ -1,5 +1,7 @@
 {
     "name": "Example quiz",
+    "author": "siniarskimar",
+    "description": "Example quiz how to create quizzes",
     "questions":[
         {
             "question": "Where this code is published?",
