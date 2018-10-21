@@ -1,4 +1,4 @@
-# Quiz-o-matic
+# Quizzer
 
 ## Prost program do quizów w C++
 
